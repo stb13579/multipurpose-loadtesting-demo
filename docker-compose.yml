@@ -19,10 +19,12 @@ services:
       BROKER_HOST: ${BROKER_HOST_CONTAINER:-broker}
       BROKER_PORT: ${BROKER_PORT:-1883}
       PORT: ${BACKEND_PORT:-8080}
+      GRPC_PORT: ${GRPC_PORT:-50051}
     depends_on:
       - broker
     ports:
       - "${BACKEND_PORT:-8080}:8080"
+      - "${HOST_GRPC_PORT:-50051}:${GRPC_PORT:-50051}"
     restart: unless-stopped
 
   frontend:

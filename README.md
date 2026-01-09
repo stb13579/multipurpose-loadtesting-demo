@@ -102,7 +102,7 @@ A fully functional demo showcasing **real-time fleet tracking** using:
    ```bash
    npm run backend
    ```
-   The API answers on `http://localhost:8080` with readiness at `/readyz`, stats at `/stats`, WebSocket stream at `/stream`, and gRPC on an ephemeral port logged as `gRPC server listening` (set `GRPC_PORT=50051` for a fixed port).
+   The API answers on `http://localhost:8080` with readiness at `/readyz`, stats at `/stats`, WebSocket stream at `/stream`, and gRPC on `localhost:${GRPC_PORT}` (default `50051`, override in `.env`).
 5. Start the frontend in a separate terminal:
    ```bash
    npm run dev
@@ -201,6 +201,19 @@ npx gatling run --typescript --simulation telemetryGrpcSimulation \
 
 See `gatling/README.md` for additional parameters (`fleetUsers`, `historyUsers`, `historyDurationSeconds`, etc.).
 
+### Docker-based gRPC load testing
+
+When the stack runs inside Docker, the backend image now bundles the proto files and publishes the gRPC listener to the host. A typical loop looks like:
+
+1. Copy `example.env` to `.env` (or update your existing file) so `GRPC_PORT=50051` and `HOST_GRPC_PORT=50051` are present.
+2. Start the MQTT broker and backend from the repo root:
+   ```bash
+   docker compose up -d broker backend
+   ```
+   Compose maps the backend gRPC listener to `localhost:50051` automatically.
+3. Warm up telemetry via `npm run simulate ...` or any of the Gatling MQTT scenarios so SQLite contains history for gRPC queries.
+4. Launch Gatling from `gatling/javascript` or `gatling/typescript`, pointing `grpcHost=localhost grpcPort=50051 grpcTls=false`. The simulations will now hit the Dockerised backend just like a local Node process.
+
 ## Backend Layout & Configuration
 
 The backend runtime is now composed of small modules that make it easier to test and extend:
@@ -256,6 +269,7 @@ backend/
 | `GRPC_ENABLED` | `true` | Enable the TelemetryService gRPC server. |
 | `GRPC_HOST` | `0.0.0.0` | Bind address for the gRPC server. |
 | `GRPC_PORT` | `0` | gRPC port (`0` lets the OS assign one; override for fixed ports). |
+| `HOST_GRPC_PORT` | `50051` | Host port exposed by Docker Compose for gRPC traffic. |
 | `GRPC_STREAM_INTERVAL_MS` | `1000` | Poll interval for `StreamVehicleSnapshots` fallback updates. |
 
 The service-level tests under `test/mqtt-service.test.js`, `test/websocket-service.test.js`, and `test/vehicle-store.test.js` provide focused coverage for telemetry validation, cache expiry, and WebSocket backpressure.
