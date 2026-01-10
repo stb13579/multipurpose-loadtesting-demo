@@ -4,13 +4,7 @@
   "useTabs": false,
   "semi": true,
   "singleQuote": false,
-  "quoteProps": "as-needed",
-  "jsxSingleQuote": false,
   "trailingComma": "none",
   "bracketSpacing": true,
-  "bracketSameLine": false,
-  "arrowParens": "always",
-  "requirePragma": false,
-  "endOfLine": "lf",
-  "embeddedLanguageFormatting": "auto"
+  "arrowParens": "always"
 }

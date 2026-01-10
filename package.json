@@ -9,6 +9,7 @@
   "scripts": {
     "test": "node --test",
     "simulate": "node simulator/index.js",
+    "grpc-warmup": "node simulator/index.js --vehicles=25 --max-messages=500 --rate=200ms && node backend/workers/rollup-worker.js",
     "backend": "node backend/index.js",
     "rollups": "node backend/workers/rollup-worker.js",
     "dev": "vite --config frontend/vite.config.js",

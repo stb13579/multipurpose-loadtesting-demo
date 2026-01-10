@@ -1,5 +1,8 @@
 const path = require('node:path');
+const dotenv = require('dotenv');
 const pino = require('pino');
+
+dotenv.config();
 
 function envOrNull(name) {
   const value = process.env[name];

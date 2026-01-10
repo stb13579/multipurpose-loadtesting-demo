@@ -102,7 +102,7 @@ A fully functional demo showcasing **real-time fleet tracking** using:
    ```bash
    npm run backend
    ```
-   The API answers on `http://localhost:8080` with readiness at `/readyz`, stats at `/stats`, WebSocket stream at `/stream`, and gRPC on `localhost:${GRPC_PORT}` (default `50051`, override in `.env`).
+   The API answers on `http://localhost:8080` with readiness at `/readyz`, stats at `/stats`, WebSocket stream at `/stream`, and gRPC on `localhost:${GRPC_PORT}` (defaults to `50051` when `.env` is loaded; set `GRPC_PORT` to pin the listener).
 5. Start the frontend in a separate terminal:
    ```bash
    npm run dev
@@ -179,6 +179,14 @@ Use identical key/value arguments across languages; Gatling resolves them throug
 
 When the Gatling JS gRPC module ships, run the bundled TelemetryService scenarios to exercise historical queries under load:
 
+Warm up telemetry and rollups first so the history queries return data (requires broker + backend running):
+
+```bash
+npm run grpc-warmup
+```
+
+You can also do this manually via `npm run simulate -- --vehicles=25 --max-messages=500 --rate=200ms` and `npm run rollups`.
+
 ```bash
 # JavaScript
 cd gatling/javascript
@@ -199,7 +207,7 @@ npx gatling run --typescript --simulation telemetryGrpcSimulation \
   windowSeconds=900
 ```
 
-See `gatling/README.md` for additional parameters (`fleetUsers`, `historyUsers`, `historyDurationSeconds`, etc.).
+See `gatling/README.md` for additional parameters (`fleetUsers`, `historyUsers`, `historyDurationSeconds`, etc.). Add `requireHistoryData=true` if you want the checks to fail when no historical data is available.
 
 ### Docker-based gRPC load testing
 
@@ -452,5 +460,6 @@ CLI arguments take precedence over environment variables.
 | `movementStep` | `0.005` | Degrees travelled per update. |
 | `startingFuel` | `95` | Initial fuel level percentage. |
 | `minimumFuel` | `15` | Lower bound for fuel depletion. |
+| `requireHistoryData` | `false` | gRPC only: fail history/aggregate checks when no data is returned. |
 
 Pass overrides as `key=value` pairs at the end of the `npx gatling run` command. Combine them with CI variables or `.env` exports for reproducible runs.
